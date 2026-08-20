@@ -1,0 +1,53 @@
+[Unit]
+Description=Monitor System (Monit)
+Documentation=https://github.com/monit
+After=network.target
+
+# Restart=always plus a permanently broken install would otherwise restart
+# forever. Give up after 5 starts in 5 minutes and stay failed.
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+
+User=monit
+Group=monit
+
+WorkingDirectory=/opt/monit
+
+# Optional (the leading "-"): the service still starts if it is absent.
+EnvironmentFile=-/etc/monit/monit.env
+
+# print() is block-buffered when stdout is a pipe, which is what journald
+# gives us. Without this, log lines sit in the buffer instead of appearing.
+Environment=PYTHONUNBUFFERED=1
+
+# The console script, not "python -m monit": the package has no __main__.py.
+ExecStart=/opt/monit/.venv/bin/monit
+
+# New log files become rw-rw-r--, so members of the monit group can manage
+# them. Combined with the setgid bit on /var/log/monit.
+UMask=0002
+
+Restart=always
+RestartSec=5
+
+# SIGTERM is handled in main() and exits cleanly; do not wait long for it.
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+SyslogIdentifier=monit
+
+# Hardening. The metrics log is the only thing this service needs to write.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/var/log/monit
+
+[Install]
+WantedBy=multi-user.target

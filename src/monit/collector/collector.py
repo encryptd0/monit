@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 
 from .cpu import CPUMetrics, get_cpu_metrics
 from .disk import DiskMetrics, get_disk_metrics
@@ -28,7 +28,7 @@ class Metrics:
 def collect_metrics() -> Metrics:
 
     return Metrics(
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S"),
         cpu=get_cpu_metrics(),
         memory=get_memory_metrics(),
         disk=get_disk_metrics(),

@@ -2,21 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from time import monotonic
-from typing import Protocol, cast
 
 import psutil
 
-
-class DiskIOCounters(Protocol):
+@dataclass(slots=True)
+class PreviousDiskIO:
     read_bytes: int
     write_bytes: int
     read_count: int
     write_count: int
 
-
-_previous_io: DiskIOCounters | None = None
+_previous_io: PreviousDiskIO | None = None
 _previous_timestamp: float | None = None
-
 
 @dataclass(slots=True)
 class DiskUsage:
@@ -25,7 +22,6 @@ class DiskUsage:
     free: int
     percent: float
 
-
 @dataclass(slots=True)
 class DiskIO:
     read_bytes_per_sec: float
@@ -33,22 +29,22 @@ class DiskIO:
     read_operations_per_sec: float
     write_operations_per_sec: float
 
-
 @dataclass(slots=True)
 class DiskMetrics:
     usage: DiskUsage
     io: DiskIO
     latency_ms: float | None
 
-
 def get_disk_metrics() -> DiskMetrics:
-    """Collect disk usage and I/O statistics."""
     global _previous_io
     global _previous_timestamp
 
     usage = psutil.disk_usage("/")
-
-    current_io = cast(DiskIOCounters, psutil.disk_io_counters())
+    current_io = psutil.disk_io_counters()
+    
+    if current_io is None:
+        raise RuntimeError("Could not retrieve disk I/O counters")
+        
     current_timestamp = monotonic()
 
     read_bytes_per_sec = 0.0
@@ -57,8 +53,7 @@ def get_disk_metrics() -> DiskMetrics:
     write_operations_per_sec = 0.0
 
     if (
-        current_io is not None
-        and _previous_io is not None
+        _previous_io is not None
         and _previous_timestamp is not None
     ):
         elapsed = current_timestamp - _previous_timestamp
@@ -100,7 +95,12 @@ def get_disk_metrics() -> DiskMetrics:
                 2,
             )
 
-    _previous_io = current_io
+    _previous_io = PreviousDiskIO(
+        read_bytes=current_io.read_bytes,
+        write_bytes=current_io.write_bytes,
+        read_count=current_io.read_count,
+        write_count=current_io.write_count,
+    )
     _previous_timestamp = current_timestamp
 
     return DiskMetrics(

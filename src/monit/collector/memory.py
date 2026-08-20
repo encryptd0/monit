@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 import psutil
 
-
 @dataclass(slots=True)
 class VirtualMemory:
     total: int
@@ -13,7 +12,6 @@ class VirtualMemory:
     free: int
     percent: float
 
-
 @dataclass(slots=True)
 class SwapMemory:
     total: int
@@ -21,12 +19,10 @@ class SwapMemory:
     free: int
     percent: float
 
-
 @dataclass(slots=True)
 class MemoryMetrics:
     virtual_memory: VirtualMemory
     swap_memory: SwapMemory
-
 
 def get_memory_metrics() -> MemoryMetrics:
     """Collect RAM and swap memory statistics."""

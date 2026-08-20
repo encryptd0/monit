@@ -5,7 +5,6 @@ from typing import Optional
 
 import psutil
 
-
 @dataclass(slots=True)
 class CPUFrequency:
     current: Optional[float]
@@ -24,7 +23,7 @@ class CPUMetrics:
 
 
 def get_cpu_metrics() -> CPUMetrics:
-    """Collect CPU statistics."""
+
     freq = psutil.cpu_freq()
 
     try:

@@ -1,0 +1,31 @@
+# Installed as /etc/logrotate.d/monit by scripts/install-project.sh.
+#
+# monit appends roughly 8 KiB per cycle across both files, which is about
+# 100 MiB a day at the default 5 second interval. Without this, /var/log fills
+# up and monit ends up alerting on the disk it filled itself.
+#
+# Paths are rewritten at install time when MONIT_LOG_DIR is overridden.
+
+/var/log/monit/monit.log
+/var/log/monit/monit.jsonl {
+    # The directory belongs to monit:monit, so logrotate needs to be told
+    # whose identity to use; it refuses to rotate a non-root directory blind.
+    su monit monit
+
+    daily
+
+    # logrotate only runs once a day, so cap the size too: at ~100 MiB/day
+    # a purely daily rotation would let a single file get far too large.
+    maxsize 50M
+
+    rotate 7
+    compress
+    delaycompress
+
+    missingok
+    notifempty
+
+    # monit reopens the path on each write, so a plain rename is safe and
+    # there is no need for copytruncate (which can lose lines).
+    create 0664 monit monit
+}

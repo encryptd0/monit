@@ -6,7 +6,6 @@ from time import monotonic
 import psutil
 import socket
 
-
 @dataclass(slots=True)
 class PreviousNetworkIO:
     bytes_sent: int
@@ -14,18 +13,12 @@ class PreviousNetworkIO:
     packets_sent: int
     packets_received: int
 
-
-_previous_counters: dict[str, PreviousNetworkIO] = {}
-_previous_timestamp: float | None = None
-
-
 @dataclass(slots=True)
 class NetworkAddress:
     ip_address: str | None
     netmask: str | None
     broadcast: str | None
     mac_address: str | None
-
 
 @dataclass(slots=True)
 class NetworkIO:
@@ -38,7 +31,6 @@ class NetworkIO:
     dropped_in: int
     dropped_out: int
 
-
 @dataclass(slots=True)
 class NetworkInterface:
     name: str
@@ -47,10 +39,12 @@ class NetworkInterface:
     mtu: int
     address: NetworkAddress
     io: NetworkIO
-
+    
+_previous_counters: dict[str, PreviousNetworkIO] = {}
+_previous_timestamp: float | None = None
 
 def get_network_metrics() -> list[NetworkInterface]:
-    """Collect network interface statistics."""
+    # Collect network interface statistics.
     global _previous_counters
     global _previous_timestamp
 
@@ -134,10 +128,10 @@ def get_network_metrics() -> list[NetworkInterface]:
                     bytes_received_per_sec=bytes_received_per_sec,
                     packets_sent_per_sec=packets_sent_per_sec,
                     packets_received_per_sec=packets_received_per_sec,
-                    errors_in=io.errin if io else 0,
-                    errors_out=io.errout if io else 0,
-                    dropped_in=io.dropin if io else 0,
-                    dropped_out=io.dropout if io else 0,
+                    errors_in=io.errin if io else False,
+                    errors_out=io.errout if io else False,
+                    dropped_in=io.dropin if io else False,
+                    dropped_out=io.dropout if io else False,
                 ),
             )
         )

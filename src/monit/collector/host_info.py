@@ -11,7 +11,6 @@ import psutil
 @dataclass(slots=True)
 class HostInfo:
     hostname: str
-    fqdn: str
     ip_address: str
     operating_system: str
     os_version: str
@@ -24,7 +23,7 @@ class HostInfo:
 
 
 def get_host_info() -> HostInfo:
-    """Collect host information."""
+    
     hostname = socket.gethostname()
 
     try:
@@ -44,7 +43,6 @@ def get_host_info() -> HostInfo:
 
     return HostInfo(
         hostname=hostname,
-        fqdn=socket.getfqdn(),
         ip_address=ip_address,
         operating_system=platform.system(),
         os_version=platform.version(),

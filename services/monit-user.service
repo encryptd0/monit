@@ -1,0 +1,43 @@
+[Unit]
+Description=Monitor System (Monit, desktop session)
+After=graphical-session.target
+
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+
+# No User=/Group=: a user unit already runs as the user who enabled it. That
+# is the whole point of this variant -- it inherits the session D-Bus, so
+# desktop notifications actually reach the screen. The system unit cannot,
+# because a system service has no session bus.
+#
+# Writing to /var/log/monit works because that user is in the monit group and
+# the directory is mode 2775 with the setgid bit.
+
+WorkingDirectory=/opt/monit
+EnvironmentFile=-/etc/monit/monit.env
+Environment=PYTHONUNBUFFERED=1
+
+ExecStart=/opt/monit/.venv/bin/monit
+
+UMask=0002
+
+Restart=always
+RestartSec=5
+
+KillSignal=SIGTERM
+TimeoutStopSec=15
+
+SyslogIdentifier=monit
+
+# Deliberately no ProtectHome=yes here: it also hides /run/user, which is
+# where the session bus lives, and notifications would silently stop working.
+ProtectSystem=strict
+PrivateTmp=yes
+NoNewPrivileges=yes
+ReadWritePaths=/var/log/monit
+
+[Install]
+WantedBy=default.target

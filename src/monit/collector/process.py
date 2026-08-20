@@ -19,17 +19,14 @@ class ProcessInfo:
     status: str
     runtime_seconds: float
 
-
 @dataclass(slots=True)
 class ProcessMetrics:
     top_cpu_processes: list[ProcessInfo]
     top_memory_processes: list[ProcessInfo]
 
-
 def get_process_metrics(limit: int = 10) -> ProcessMetrics:
     processes: list[ProcessInfo] = []
 
-    # Prime CPU usage counters
     for process in psutil.process_iter():
         try:
             process.cpu_percent(None)
