@@ -6,15 +6,6 @@ both a human-readable and a machine-readable form, and raises a desktop
 notification when something crosses a threshold (a CPU above 95 °C, or CPU,
 memory or disk at 90 %).
 
-## Try it first
-
-Rehearse the whole install in a throwaway container before touching a real
-machine. It does a genuine root install, exercises it, then reverts everything:
-
-```bash
-./scripts/test-install.sh     # needs podman or docker
-```
-
 ## Install
 
 ```bash
